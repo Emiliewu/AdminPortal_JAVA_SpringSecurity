@@ -58,7 +58,9 @@ public class UserController {
         	
         } else {        	
         	// create a admin role
-        	userService.saveUserWithAdminRole(user);
+        	//userService.saveUserWithAdminRole(user);
+        	// create a super admin role
+        	userService.saveUserWithSuperAdminRole(user);
         	return "redirect:/admin";
         }
     }

@@ -11,7 +11,7 @@
 </head>
 <body>
 	<div class="container mx-auto" style="width:800px; ">
-	<div class="d-flex justify-content-between" style="color:#195f9b">
+	<div class="d-flex justify-content-between my-3 p-3 col-8" style="color:#195f9b">
 		<h3 class="p-3">Welcome <c:out value="${ currentUser.firstname }" /></h3>
 		<form id="logoutForm" method="POST" action="/logout">
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
@@ -20,6 +20,13 @@
 	</div>
 	
 	<div class="container-sm my-3 p-3 col-8" style="border:1px solid black">
+	<c:set var="currentUserRole" scope="session" value="default"/>
+	<c:forEach items="${ currentUser.roles }" var="r">
+	<c:if test="${ r.name.equals('ROLE_ADMIN_SUPER') }">
+	<c:set var="currentUserRole" scope="session" value="super"/>
+	</c:if>
+	</c:forEach>
+	
 			<table class="table table-striped table-hover">
 			<thead>
 		    <tr>
@@ -30,24 +37,58 @@
 			</thead>
 			<tbody>
 				<c:forEach items="${ allusers }" var="u">
+				<c:set var="adminrole" scope="session" value="theuser"/>
+				<c:set var="superadmin" scope="session" value="notsuper"/>
+					<c:forEach items="${ u.roles }" var="r">
+					<c:if test="${ r.name.equals('ROLE_ADMIN') }">
+					<c:set var="adminrole" scope="session" value="admin"/>
+					</c:if>
+					<c:if test="${ r.name.equals('ROLE_ADMIN_SUPER') }">
+					<c:set var="superadmin" scope="session" value="super"/>
+					</c:if>
+					</c:forEach>
+				<c:choose>
+				<c:when test="${ currentUserRole.equals('super')}">	
 				<tr>
 					<td scope="row"><c:out value="${ u.firstname }"/> <c:out value="${ u.lastname }"/></td>
 					<td scope="row"><c:out value="${ u.email }"/></td>
-					<c:set var="adminrole" scope="session" value="false"/>
-					<c:forEach items="${ u.roles }" var="r">
-					<c:if test="${ r.name.equals('ROLE_ADMIN') }">
-					<c:set var="adminrole" scope="session" value="true"/>
-					</c:if>
-					</c:forEach>
+					
+
 					<c:choose>				
-						<c:when test="${ adminrole.equals('true') }">						
-						<td scope="row">admin</td>
+						<c:when test="${ adminrole.equals('admin') }">						
+						<td scope="row">admin | <a href="/admin/${ u.id }/delete">Delete</a>
+						</td>
 						</c:when>
-						<c:otherwise>						
-						<td scope="row"><a href="/admin/${ u.id }/delete">Delete</a> | <a href="/admin/${ u.id }/new"> Make admin</a></td>
+						<c:otherwise>
+							<c:choose>
+							<c:when test="${ superadmin.equals('notsuper') }">
+							<td scope="row"><a href="/admin/${ u.id }/delete">Delete</a> | <a href="/admin/${ u.id }/new"> Make admin</a></td>
+							</c:when>
+							<c:otherwise>
+							<td scope="row">Super Admin</td>
+							</c:otherwise>	
+							</c:choose>					
 						</c:otherwise>
 					</c:choose>				
 				</tr>
+				</c:when>
+				<c:otherwise>
+					<c:if test="${ superadmin.equals('notsuper') }">
+					<tr>
+					<td scope="row"><c:out value="${ u.firstname }"/> <c:out value="${ u.lastname }"/></td>
+					<td scope="row"><c:out value="${ u.email }"/></td>
+					<c:choose>				
+						<c:when test="${ adminrole.equals('admin') }">						
+						<td scope="row">admin</td>
+						</c:when>
+						<c:otherwise>						
+						<td scope="row"><a href="/admin/${ u.id }/delete">Delete</a></td>
+						</c:otherwise>
+					</c:choose>				
+					</tr>
+					</c:if>
+				</c:otherwise>
+				</c:choose>
 				</c:forEach>
   			</tbody>
 			</table>

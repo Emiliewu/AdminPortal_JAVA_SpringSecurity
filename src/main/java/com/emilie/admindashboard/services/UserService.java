@@ -37,6 +37,12 @@ public class UserService {
         user.setRoles(roleRepository.findByName("ROLE_ADMIN"));
         userRepository.save(user);
     }    
+    // super admin
+    public void saveUserWithSuperAdminRole(User user) {
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        user.setRoles(roleRepository.findByName("ROLE_ADMIN_SUPER"));
+        userRepository.save(user);
+    } 
     
     // 3
     public User findByEmail(String email) {
@@ -53,7 +59,7 @@ public class UserService {
     	List<User> users = findAllUsers();
     	for(User user: users) {
     		for(Role r: user.getRoles()) {  			
-    			if(r.getName().equals("ROLE_ADMIN")) {
+    			if(r.getName().equals("ROLE_ADMIN") || r.getName().equals("ROLE_ADMIN_SUPER")) {
     				return true;
     			}
     		}

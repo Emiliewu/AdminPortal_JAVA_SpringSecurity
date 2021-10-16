@@ -16,7 +16,7 @@
 		<h3 class="p-3">Welcome <c:out value="${ currentUser.firstname }" /></h3>
 		<c:set var="adminrole" scope="session" value="false"/>
 		<c:forEach items="${ currentUser.roles }" var="r">
-		<c:if test="${ r.name.equals('ROLE_ADMIN') }">
+		<c:if test="${ r.name.contains('ROLE_ADMIN') }">
 		<c:set var="adminrole" scope="session" value="true"/>
 		</c:if>
 		</c:forEach>
